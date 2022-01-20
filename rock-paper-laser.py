@@ -1,11 +1,12 @@
 import random
 
-# a list of unnecessary actions that make the results more interesting 
+# a list of unnecessarily dramatic actions that make the results more interesting 
 dramaticList = ["destroyed", "decimated", "obliterated", "walloped", "beat", "crippled", "evicerated", "fricked up", "hammered", "killed", "murdered", "demolished", "rocked"]
 
-# a list of every throw in the game used by the AI
+# a list of every throw in the game used by the random opponent
 throwList = ["rock", "paper", "scissors", "sword", "shield", "gun", "the rock", "slime", "laser", "stick", "rainbow", "tornado", "arrow", "cannon", "charizard"]
 
+# a dictionary with every throw in the game corresponding to a list of every throw that they beat
 beatDict = {
   "rock" : ["gun", "sword", "scissors", "tornado", "stick", "arrow", "cannon"],
   "paper" : ["shield", "rock", "the rock", "rainbow", "cannon", "arrow", "tornado"],
@@ -24,7 +25,7 @@ beatDict = {
   "charizard" : ['scissors', 'tornado', 'rock', 'paper', 'shield', 'stick', 'rainbow']
 }
 
-# Tommi's brain  -  the list contains several lists with the throw that they represent, and their weight in the randomly generated attack
+# Tommi's brain  -  a dictionary with every throw in the game corresponding to a number that will be used as its weight when determining what he will throw
 tommiDict = {
   "rock" : 3,
   "paper" : 3,
@@ -43,6 +44,7 @@ tommiDict = {
   "charizard" : 3,
 }
 
+# Evil Tommi's brain - the same thing as before, a dictionary with every throw and an even weight value assigned to each at the start
 evilTommiDict = {
   "rock" : 3,
   "paper" : 3,
@@ -61,6 +63,7 @@ evilTommiDict = {
   "charizard" : 3,
 }
 
+
 startingHealth =  20
 playerOneHealth = startingHealth
 playerTwoHealth = startingHealth
@@ -71,18 +74,19 @@ playBot = False
 playTommi = False
 trainEvilTommi = False
 trainRandomTommi = False
-tommiThrowIndex = 0
 
-# clears the screen using code from the mystical land of stack overflow
+# clears the screen using magical code from the mystical land of stack overflow
 def clear():
   print("\033[H\033[J", end="")
 
-# Determines what Tommi will throw
+# Determines what Tommi, or Evil Tommi will throw depending on the weight values in their respective dictionaries
+# The total of every weight value is added up, then a "random" number is generated between 1 and that total + 1, 
+# this random number (throwNum) is the "index" of the throw that will be used. The dictionary is then iterated through
+# and every weight value is added up until it is greater than or exceeds the throwNum.
 def tommiAttack(goodOrEvil = "good"):
   total = 0
   throwNum = 0
   count = 0
-  # adds up all of the numerical values in tommiList and gets a random number between one and the total
   if goodOrEvil.lower() == "good":
     for weight in tommiDict.values():
       total += weight
@@ -103,7 +107,9 @@ def tommiAttack(goodOrEvil = "good"):
       if count >= throwNum:
         return key
 
-# the most basic form of AI learning - does what doesn't work less and does what does work more
+# the most basic form of AI learning - Tommi does what doesn't work less and does what does work more
+# It does this by subtracting one from the throw's weight value if it loses, provided its weight is not already 1
+# If the throw won, however, its weight will be increases by 1
 def learn(goodOrEvil = "good"):
   if goodOrEvil.lower() == "good":
     if winner == "playerOne" and tommiDict[throwTwo] > 1:
@@ -118,8 +124,9 @@ def learn(goodOrEvil = "good"):
     elif winner == "playerOne":
       evilTommiDict[throwOne] += 1
 
-def beatCheck(winList):
-  for i in winList:
+# 
+def beatCheck(beatList):
+  for i in beatList:
     if throwTwo == i:
       return "playerOne"
   for legalThrow in throwList:
